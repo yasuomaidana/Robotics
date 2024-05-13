@@ -26,7 +26,7 @@ def translational_affine(axis: str, displacement: float) -> np.ndarray:
     return transform
 
 
-def chained_rotations(angles: list, degrees=True) -> np.ndarray:
+def chained_rotations(angles: list | tuple, degrees=True) -> np.ndarray:
     """
         Calculates the resulting affine matrix from a sequence of rotations.
 
@@ -34,6 +34,8 @@ def chained_rotations(angles: list, degrees=True) -> np.ndarray:
             angles (list): List of rotation specifications.
                               - Each rotation can be a list [x, y, z] (Euler angles in degrees).
                               - Or a tuple ('axis', angle) (axis and angle in degrees).
+                              - Or a string 'axis' and a float angle.
+                              - Or a float angle for a rotation around x, y, z.
 
         Returns:
             np.ndarray: The combined rotation matrix.
@@ -48,15 +50,18 @@ def chained_rotations(angles: list, degrees=True) -> np.ndarray:
     elif isinstance(angles[0], tuple):
         for axis, angle in angles:
             axis_rotation = axis_rotation @ rotational_affine(axis, angle, degrees=degrees)
-    elif isinstance(angles[0], str):
+    elif isinstance(angles[0], str) and len(angles) == 2:
         axis_rotation = axis_rotation @ rotational_affine(angles[0], angles[1], degrees=degrees)
+    elif isinstance(angles[0], float | int) and len(angles) == 3:
+        axis_rotation[:3, :3] = R.from_euler('xyz', angles, degrees=degrees).as_matrix()
     else:
         raise ValueError("Invalid rotation specification.")
     return axis_rotation
 
 
 class Link:
-    def __init__(self, axis, translational_offset=0.0, initial_frame_rotation=None, initial_state=0.0, degrees=True):
+    def __init__(self, axis, translational_offset=0.0, initial_frame_rotation: list | tuple = None, initial_state=0.0,
+                 degrees=True):
         """
         Base class for robot links.
 
