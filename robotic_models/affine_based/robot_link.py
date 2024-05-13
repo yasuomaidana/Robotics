@@ -19,9 +19,7 @@ def process_translational_offset(offset) -> np.ndarray:
         result = result @ translational_affine('tx', offset)
     elif isinstance(offset, (tuple, list)):
         if len(offset) == 3:  # List/tuple of 3 values -> [x, y, z] offsets
-            result = result @ translational_affine('tx', offset[0])
-            result = result @ translational_affine('ty', offset[1])
-            result = result @ translational_affine('tz', offset[2])
+            result[:3, 3] = np.array(offset)
         elif len(offset) > 0 and all(isinstance(item, tuple) and len(item) == 2 for item in offset):
             # List of tuples like [('x', 1), ('y', 2)]
             for axis, disp in offset:
