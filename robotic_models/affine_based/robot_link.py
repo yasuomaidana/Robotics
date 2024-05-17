@@ -1,6 +1,5 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
-from matplotlib import pyplot as plt
 
 
 def rotational_affine(axis: str, angle: float, degrees=True) -> np.ndarray:
@@ -85,7 +84,7 @@ def chained_rotations(angles: list | tuple, degrees=True) -> np.ndarray:
 
 
 class Link:
-    def __init__(self, axis, translational_offset: float | list | tuple[str, float] = 0.0,
+    def __init__(self, axis, translational_offset: float | list | tuple = 0.0,
                  initial_frame_rotation: list | tuple = None, initial_state=0.0,
                  degrees=True):
         """
@@ -140,36 +139,3 @@ class TranslationalLink(Link):
         local_translation = translational_affine(self.axis, self.state)
 
         self.transform = self.axis_transform(self.degrees) @ local_translation
-
-
-if __name__ == "__main__":
-    # Example 1: No rotation, translational offset of 1
-    link1 = TranslationalLink('tz', initial_state=1.0, translational_offset=1)
-
-    # Example 2: 90-degree rotation on x, translational offset of 1, initial rotations of 90 on x and y
-    link2 = RotationalLink('x', initial_state=45, translational_offset=2,
-                           initial_frame_rotation=[('z', 90), ('y', -90)])
-
-
-    def plot_link(link, ax):
-        """Visualize a link in 3D."""
-        origin = [0, 0, 0]
-        end_point = link.transform[:3, :3]@link.transform[:3, 3]
-        ax.plot([origin[0], end_point[0]], [origin[1], end_point[1]], [origin[2], end_point[2]], '-o')
-
-
-    # Plotting
-    fig = plt.figure()
-    ax = fig.add_subplot(111, projection='3d')
-    ax.set_xlim([-1, 2])
-    ax.set_ylim([-1, 2])
-    ax.set_zlim([-1, 2])
-
-    plot_link(link1, ax)  # Plot the first link
-    plot_link(link2, ax)  # Plot the second link
-
-    ax.set_xlabel('X')
-    ax.set_ylabel('Y')
-    ax.set_zlabel('Z')
-    plt.title('Link Visualization')
-    plt.show()
