@@ -11,10 +11,10 @@ class OmniWheel:
         self.diameter = diameter
         self.width = width
 
-    def plot(self, ax):
+    def plot(self, ax, color='black'):
         wheel_patch = patches.Rectangle(
             (self.distance_from_robot_frame[0] - self.diameter / 2, self.distance_from_robot_frame[1] - self.width / 2),
-            self.diameter, self.width, angle=self.orientation, color='black', rotation_point="center")
+            self.diameter, self.width, angle=self.orientation, color=color, rotation_point="center")
 
         ax.add_patch(wheel_patch)
 
@@ -26,11 +26,11 @@ class OmniWheel:
         wheel_velocity = robot_angular_velocity * wheel_radius
         return wheel_velocity
 
-    def plot_velocity(self, ax, robot_angular_velocity):
+    def plot_velocity(self, ax, robot_angular_velocity, color='orange'):
         vx, vy = self.get_velocity_components(robot_angular_velocity)
         ax.quiver(self.distance_from_robot_frame[0], self.distance_from_robot_frame[1],
                   vx, vy, angles='xy',
-                  scale_units='xy', scale=1)
+                  scale_units='xy', scale=1, color=color)
 
     def get_velocity_components(self, robot_angular_velocity):
         wheel_velocity = self.calculate_velocity(robot_angular_velocity)
