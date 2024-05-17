@@ -1,13 +1,7 @@
 import numpy as np
 from scipy.spatial.transform import Rotation
 
-
-def rotational_affine(axis: str, angle: float, degrees=True) -> np.ndarray:
-    if axis not in 'xyz':
-        raise ValueError(f"Invalid axis: {axis}")
-    rotation_matrix = np.eye(4)
-    rotation_matrix[:3, :3] = Rotation.from_euler(axis, angle, degrees=degrees).as_matrix()
-    return rotation_matrix
+from common.affine import rotational_affine, translational_affine
 
 
 def process_translational_offset(offset) -> np.ndarray:
@@ -33,21 +27,6 @@ def process_translational_offset(offset) -> np.ndarray:
                 "Invalid offset format. Use float/int, [x, y, z], or [(axis, value), ...]")
 
     return result
-
-
-def translational_affine(axis: str, displacement: float) -> np.ndarray:
-    """Calculates a translational affine matrix for a specific displacement."""
-    if axis not in ["tx", "ty", "tz"]:
-        raise ValueError(f"Invalid axis: {axis}")
-
-    transform = np.eye(4)
-    if axis == 'tx':
-        transform[0, 3] = displacement
-    elif axis == 'ty':
-        transform[1, 3] = displacement
-    elif axis == 'tz':
-        transform[2, 3] = displacement
-    return transform
 
 
 def chained_rotations(angles: list | tuple, degrees=True) -> np.ndarray:
