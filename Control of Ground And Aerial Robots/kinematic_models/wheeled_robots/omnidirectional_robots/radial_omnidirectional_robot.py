@@ -1,4 +1,4 @@
-from matplotlib import patches, pyplot as plt
+from matplotlib import patches
 from numpy import radians, cos, sin, ndarray
 
 from omnidirectional_robot import OmnidirectionalRobot
