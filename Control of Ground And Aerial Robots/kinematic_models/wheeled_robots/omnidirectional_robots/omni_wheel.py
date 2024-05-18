@@ -37,9 +37,9 @@ class OmniWheel:
         wheel_position: np.ndarray[float, float] = robot_rotation @ self.distance_from_robot_frame + robot_position
 
         vx, vy = rotational_affine('z', robot_orientation)[:2, :2] @ self.get_velocity_components(self.velocity)
+
         ax.quiver(wheel_position[0], wheel_position[1],
-                  vx, vy, angles='xy',
-                  scale_units='xy', scale=1, color=color)
+                  vx, vy, scale=1 if vx == vy == 0 else None, color=color)
 
     def get_velocity_components(self, robot_angular_velocity):
         wheel_velocity = self.calculate_velocity(robot_angular_velocity)
