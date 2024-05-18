@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.patches as patches
-
+from numpy import array
+from matplotlib.axes import Axes
 from common.affine import affine_matrix_from_rotation_and_translation, rotational_affine
 
 
@@ -12,10 +13,14 @@ class OmniWheel:
         self.width = width
         self.velocity = velocity
 
-    def plot(self, ax, color='black'):
+    def plot(self, ax: Axes, robot_position=array([0, 0]), robot_orientation=0, color='black'):
+        robot_rotation = rotational_affine('z', robot_orientation)[:2, :2]
+        wheel_position: np.ndarray[float, float] = robot_rotation @ self.distance_from_robot_frame + robot_position
+        wheel_rotation = self.orientation + robot_orientation
+
         wheel_patch = patches.Rectangle(
-            (self.distance_from_robot_frame[0] - self.diameter / 2, self.distance_from_robot_frame[1] - self.width / 2),
-            self.diameter, self.width, angle=self.orientation, color=color, rotation_point="center")
+            (wheel_position[0] - self.diameter / 2, wheel_position[1] - self.width / 2),
+            self.diameter, self.width, angle=wheel_rotation, color=color, rotation_point="center")
 
         ax.add_patch(wheel_patch)
 
@@ -27,10 +32,12 @@ class OmniWheel:
         wheel_velocity = robot_angular_velocity * wheel_radius
         return wheel_velocity
 
-    def plot_velocity(self, ax, color='orange'):
+    def plot_velocity(self, ax: Axes, robot_position=array([0, 0]), robot_orientation=0, color='orange'):
+        robot_rotation = rotational_affine('z', robot_orientation)[:2, :2]
+        wheel_position: np.ndarray[float, float] = robot_rotation @ self.distance_from_robot_frame + robot_position
 
-        vx, vy = self.get_velocity_components(self.velocity)
-        ax.quiver(self.distance_from_robot_frame[0], self.distance_from_robot_frame[1],
+        vx, vy = rotational_affine('z', robot_orientation)[:2, :2] @ self.get_velocity_components(self.velocity)
+        ax.quiver(wheel_position[0], wheel_position[1],
                   vx, vy, angles='xy',
                   scale_units='xy', scale=1, color=color)
 
