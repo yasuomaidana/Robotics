@@ -37,7 +37,7 @@ class OmnidirectionalRobot:
             wheel.plot(ax, robot_position=self.position, robot_orientation=self.orientation,
                        color=wheel_color or self.wheel_color)
 
-    def plot_velocity(self, ax: Axes, wheel_color=None, velocity_color=None):
+    def plot_velocity(self, ax: Axes, wheel_color=None, velocity_color=None, global_velocity="green"):
         ax.set_aspect('equal')
         for wheel, vel in zip(self.wheels, self.motor_velocities):
             wheel.velocity = vel
@@ -46,6 +46,7 @@ class OmnidirectionalRobot:
             wheel.plot_velocity(ax,
                                 robot_position=self.position, robot_orientation=self.orientation,
                                 color=velocity_color or self.velocity_color)
+        ax.quiver(self.position[0], self.position[1], *self.global_velocity()[:2], color=global_velocity)
 
     def get_angular_velocity(self):
         # 1. First calculate each wheel's velocity
