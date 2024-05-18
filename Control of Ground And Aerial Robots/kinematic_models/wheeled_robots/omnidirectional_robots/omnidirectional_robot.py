@@ -1,5 +1,5 @@
 from numpy import array, ndarray, sum as np_sum
-
+from matplotlib.axes import Axes
 from common.angular_velocity import omega_from_v_r
 from omni_wheel import OmniWheel
 
@@ -23,10 +23,6 @@ class OmnidirectionalRobot:
     def move(self, x, y, orientation):
         self.position = array([x, y])
         self.orientation = orientation
-        for wheel in self.wheels:
-            wheel.orientation += orientation
-            wheel.distance_from_robot_frame = (
-                wheel.distance_from_robot_frame[0] + x, wheel.distance_from_robot_frame[1] + y)
 
     def add_wheel(self, wheel: OmniWheel):
         if len(self.wheels) < self.num_wheels:
@@ -34,17 +30,21 @@ class OmnidirectionalRobot:
         else:
             raise ValueError("All wheels have been added")
 
-    def plot(self, ax):
+    def plot(self, ax: Axes, wheel_color=None):
         ax.set_aspect('equal')
         for wheel in self.wheels:
-            wheel.plot(ax, color=self.wheel_color)
+            wheel.plot(ax, robot_position=self.position, robot_orientation=self.orientation,
+                       color=wheel_color or self.wheel_color)
 
-    def plot_velocity(self, ax):
+    def plot_velocity(self, ax: Axes, wheel_color=None, velocity_color=None):
         ax.set_aspect('equal')
         for wheel, vel in zip(self.wheels, self.motor_velocities):
             wheel.velocity = vel
-            wheel.plot(ax, color=self.wheel_color)
-            wheel.plot_velocity(ax, color=self.velocity_color)
+            wheel.plot(ax, robot_position=self.position, robot_orientation=self.orientation,
+                       color=wheel_color or self.wheel_color)
+            wheel.plot_velocity(ax,
+                                robot_position=self.position, robot_orientation=self.orientation,
+                                color=velocity_color or self.velocity_color)
 
     def get_angular_velocity(self):
         # 1. First calculate each wheel's velocity

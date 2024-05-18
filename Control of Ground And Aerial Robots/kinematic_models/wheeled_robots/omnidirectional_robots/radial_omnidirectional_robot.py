@@ -1,4 +1,5 @@
 from matplotlib import patches
+from matplotlib.axes import Axes
 from numpy import radians, cos, sin, ndarray
 
 from omnidirectional_robot import OmnidirectionalRobot
