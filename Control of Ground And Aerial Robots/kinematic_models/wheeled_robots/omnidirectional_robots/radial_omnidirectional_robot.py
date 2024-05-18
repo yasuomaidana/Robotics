@@ -31,8 +31,7 @@ class RadialOmnidirectionalRobot(OmnidirectionalRobot):
         ax.add_patch(circle)
         super().plot(ax, wheel_color)
 
-    def plot_velocity(self, ax: Axes, wheel_color=None, velocity_color=None):
+    def plot_velocity(self, ax: Axes, wheel_color=None, velocity_color=None, global_velocity="green"):
         circle = patches.Circle(self.position, self.radius, edgecolor='black', facecolor='none')
         ax.add_patch(circle)
-        super().plot_velocity(ax, wheel_color, velocity_color)
-
+        super().plot_velocity(ax, wheel_color, velocity_color, global_velocity)
