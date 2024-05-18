@@ -1,4 +1,6 @@
-from numpy import array, ndarray, sum as np_sum, pi
+import numpy as np
+from matplotlib import pyplot as plt
+from numpy import array, ndarray, sum as np_sum
 from matplotlib.axes import Axes
 from common.affine import rotational_affine
 from common.angular_velocity import omega_from_v_r
@@ -30,7 +32,7 @@ class OmnidirectionalRobot:
 
         # Update orientation
         self.orientation += global_vel[2] * delta_T
-        self.orientation %= 2 * pi  # Ensure orientation stays within [0, 2π)
+        self.orientation %= 2 * 360  # Ensure orientation stays within [0, 2π)
 
     def add_wheel(self, wheel: OmniWheel):
         if len(self.wheels) < self.num_wheels:
@@ -79,3 +81,54 @@ class OmnidirectionalRobot:
         affine_matrix = rotational_affine('z', self.orientation)
         global_velocity = affine_matrix[:2, :2] @ self.get_linear_velocity()
         return array([*global_velocity, self.get_angular_velocity()])
+
+    def simulate_and_plot(self, motor_velocities, time_steps, ax=None):
+        """
+        Simulates robot movement and plots the trajectory and velocities.
+
+        Args:
+            motor_velocities: A list of motor velocity arrays or a single array.
+            time_steps: A list of time steps or a float representing the total simulation time.
+            ax: A matplotlib Axes object (optional). If not provided, a new one is created.
+        """
+
+        # Prepare motor velocities and time steps
+        if isinstance(motor_velocities[0], (int, float)):  # Single array of motor velocities
+            num_states = len(time_steps) if isinstance(time_steps, list) else round(time_steps / motor_velocities[0])
+            motor_velocities = np.tile(motor_velocities, (num_states, 1))
+
+        if not isinstance(time_steps, list):  # Single float representing total time
+            time_steps = np.linspace(0, time_steps, len(motor_velocities))
+
+        if ax is None:
+            fig, ax = plt.subplots(figsize=(10, 8))
+
+        # Simulate and plot
+        positions = [self.position.copy()]
+        global_velocities = [self.global_velocity().copy()]
+        for i, (motor_vels, dt) in enumerate(zip(motor_velocities, time_steps)):
+            self.motor_velocities = motor_vels  # Set motor velocities
+            self.move(dt)  # Update robot state
+            positions.append(self.position.copy())
+            global_velocities.append(self.global_velocity().copy())
+            self.plot_velocity(ax, velocity_color="none")  # Plot wheels and velocities at this time step
+        positions = np.array(positions)
+        global_velocities = np.array(global_velocities)
+
+        # Plot trajectory, robot body and initial and final state
+        ax.plot(positions[:, 0], positions[:, 1], 'b-', label='Robot Trajectory')
+        self.plot(ax)
+
+        # Plot velocities
+        for i in range(len(global_velocities)):
+            vel = global_velocities[i]
+            ax.quiver(positions[i, 0], positions[i, 1], vel[0], vel[1], scale=1 if vel[0] == vel[1] == 0 else None,
+                      color="orange")
+
+        ax.set_xlabel('X (meters)')
+        ax.set_ylabel('Y (meters)')
+        ax.set_title('Robot Trajectory and Velocities')
+        ax.legend()
+        ax.grid(True)
+
+        return ax
