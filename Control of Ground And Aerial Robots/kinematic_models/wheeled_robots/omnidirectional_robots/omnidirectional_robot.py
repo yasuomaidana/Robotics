@@ -1,5 +1,6 @@
 from numpy import array, ndarray, sum as np_sum
 from matplotlib.axes import Axes
+from common.affine import rotational_affine
 from common.angular_velocity import omega_from_v_r
 from omni_wheel import OmniWheel
 
@@ -62,3 +63,11 @@ class OmnidirectionalRobot:
         linear_velocity = np_sum([wheel.get_velocity_components(motor_velocity) for wheel, motor_velocity in
                                   zip(self.wheels, self.motor_velocities)], axis=0)
         return linear_velocity
+
+    def global_state(self) -> ndarray:
+        return array([*self.position, self.orientation, *self.global_velocity()])
+
+    def global_velocity(self) -> ndarray:
+        affine_matrix = rotational_affine('z', self.orientation)
+        global_velocity = affine_matrix[:2, :2] @ self.get_linear_velocity()
+        return array([*global_velocity, self.get_angular_velocity()])
