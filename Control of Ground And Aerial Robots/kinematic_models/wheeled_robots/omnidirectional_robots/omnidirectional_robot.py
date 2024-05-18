@@ -1,4 +1,4 @@
-from numpy import array, ndarray, sum as np_sum
+from numpy import array, ndarray, sum as np_sum, pi
 from matplotlib.axes import Axes
 from common.affine import rotational_affine
 from common.angular_velocity import omega_from_v_r
@@ -21,9 +21,16 @@ class OmnidirectionalRobot:
         if len(self.motor_velocities) != num_wheels:
             raise ValueError("Motor velocities must be provided for each wheel")
 
-    def move(self, x, y, orientation):
-        self.position = array([x, y])
-        self.orientation = orientation
+    def move(self, delta_T: float, motor_velocities: ndarray = None):
+        if motor_velocities is not None:
+            self.motor_velocities = motor_velocities
+            # Update position
+        global_vel = self.global_velocity()  # Get global velocities (linear and angular)
+        self.position = self.position + global_vel[:2] * float(delta_T)
+
+        # Update orientation
+        self.orientation += global_vel[2] * delta_T
+        self.orientation %= 2 * pi  # Ensure orientation stays within [0, 2π)
 
     def add_wheel(self, wheel: OmniWheel):
         if len(self.wheels) < self.num_wheels:
