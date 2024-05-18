@@ -5,11 +5,12 @@ from common.affine import affine_matrix_from_rotation_and_translation, rotationa
 
 
 class OmniWheel:
-    def __init__(self, distance_from_robot_frame=(0, 0), orientation=0, diameter=1, width=0.5):
+    def __init__(self, distance_from_robot_frame=(0, 0), orientation=0, diameter=1, width=0.5, velocity=0):
         self.distance_from_robot_frame = distance_from_robot_frame
         self.orientation = orientation
         self.diameter = diameter
         self.width = width
+        self.velocity = velocity
 
     def plot(self, ax, color='black'):
         wheel_patch = patches.Rectangle(
@@ -26,8 +27,9 @@ class OmniWheel:
         wheel_velocity = robot_angular_velocity * wheel_radius
         return wheel_velocity
 
-    def plot_velocity(self, ax, robot_angular_velocity, color='orange'):
-        vx, vy = self.get_velocity_components(robot_angular_velocity)
+    def plot_velocity(self, ax, color='orange'):
+
+        vx, vy = self.get_velocity_components(self.velocity)
         ax.quiver(self.distance_from_robot_frame[0], self.distance_from_robot_frame[1],
                   vx, vy, angles='xy',
                   scale_units='xy', scale=1, color=color)
