@@ -7,8 +7,8 @@ from omni_wheel import OmniWheel
 
 class RadialOmnidirectionalRobot(OmnidirectionalRobot):
     def __init__(self, num_wheels, radius, wheel_width=None, wheel_diameter=0.5, axis_rotation=0,
-                 velocity_color='orange', wheel_color='black'):
-        super().__init__(num_wheels, velocity_color, wheel_color)
+                 velocity_color='orange', wheel_color='black', motor_velocities: ndarray | list = None):
+        super().__init__(num_wheels, velocity_color, wheel_color, motor_velocities)
         self.radius = radius
         self.axis_rotation = axis_rotation
         self.wheel_width = wheel_width or radius / 2
@@ -27,5 +27,5 @@ class RadialOmnidirectionalRobot(OmnidirectionalRobot):
 
     def plot(self, ax):
         super().plot(ax)
-        circle = patches.Circle((0, 0), self.radius, edgecolor='black', facecolor='none')
+        circle = patches.Circle(self.position, self.radius, edgecolor='black', facecolor='none')
         ax.add_patch(circle)
