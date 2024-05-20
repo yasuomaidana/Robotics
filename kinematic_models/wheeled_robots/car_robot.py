@@ -1,5 +1,5 @@
 import numpy as np
-from numpy import array, ndarray, cos, sin, tan, zeros, deg2rad
+from numpy import array, ndarray, cos, sin, tan, zeros, deg2rad, rad2deg
 from matplotlib.axes import Axes
 import matplotlib.patches as patches
 from numpy.linalg import inv
@@ -75,3 +75,8 @@ class AckermannCar:
         ax.plot([steering_line_x, steering_line_x + 0.5 * np.cos(self.state[2] + self.steering_angle)],
                 [steering_line_y, steering_line_y + 0.5 * np.sin(self.state[2] + self.steering_angle)],
                 color="red", linestyle="dashed")
+
+    @property
+    def yaw(self):
+        """Yaw angle in radians or degrees, depending on configuration."""
+        return rad2deg(self.state[2]) if self.degrees else self.state[2]
