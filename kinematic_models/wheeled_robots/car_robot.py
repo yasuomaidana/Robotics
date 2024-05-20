@@ -6,7 +6,9 @@ from numpy.linalg import inv
 
 
 class AckermannCar:
-    def __init__(self, state: ndarray = zeros(6), wheelbase=2.5, width=1.5, length=4.5, degrees=True):
+    def __init__(self, state: ndarray = None, wheelbase=2.5, width=1.5, length=4.5, degrees=True):
+        if state is None:
+            state = zeros(6)
         self.state: ndarray = state
         self.wheelbase = wheelbase  # distance between front and rear axles
         self.width = width  # car width
@@ -14,6 +16,7 @@ class AckermannCar:
         self.steering_angle = 0  # current steering angle (radians)
         self.velocity = 0  # current velocity (m/s)
         self.degrees = degrees
+        self.state[2] = self.yaw
 
     def kinematic_matrix(self, front: bool = False):
         yaw = self.state[2]
