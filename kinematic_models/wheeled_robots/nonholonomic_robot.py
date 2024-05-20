@@ -1,5 +1,5 @@
 from matplotlib.axes import Axes
-from numpy import ndarray, zeros, deg2rad, cos, sin
+from numpy import ndarray, zeros, deg2rad, cos, sin, eye
 
 from kinematic_models.wheeled_robots.car_robot import AckermannCar
 
@@ -12,17 +12,32 @@ class NonholonomicRobot(AckermannCar):
             arm_offset = zeros(2)
         self.arm_offset = arm_offset
         self.arm_length = arm_length
-        self.arm_angle = arm_angle
+        self.arm_angle = deg2rad(arm_angle) if self.degrees else arm_angle
 
     @property
     def transformed_arm_offset(self):
         return self.kinematic_matrix()[:2, :2] @ self.arm_offset
 
+    def arm_kinematic_matrix(self):
+        """Calculates the arm's kinematic matrix relative to the car's base frame."""
+        yaw = self.state[2]
+        arm_angle_rad = self.arm_angle
+
+        kinematic_matrix = eye(4)
+
+        kinematic_matrix[:2, :2] = self.kinematic_matrix()[:2, :2]
+
+        kinematic_matrix[0, 2] = -self.arm_length * sin(yaw + arm_angle_rad)
+        kinematic_matrix[1, 2] = self.arm_length * cos(yaw + arm_angle_rad)
+        kinematic_matrix[0:2, 3] = self.transformed_arm_offset
+
+        return kinematic_matrix
+
     def draw(self, ax: Axes):
         super().draw(ax)
 
         # Calculate arm end points
-        arm_angle_rad = deg2rad(self.arm_angle) if self.degrees else self.arm_angle
+        arm_angle_rad = self.arm_angle
 
         # Calculate the offset point relative to the car's reference frame
         offset_x, offset_y = self.transformed_arm_offset
